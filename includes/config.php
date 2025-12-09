@@ -43,4 +43,15 @@ function redirectBasedOnRole() {
     }
     // Admin stays on dashboard
 }
+
+// Function to calculate inventory status based on quantity
+function calculateInventoryStatus($quantity) {
+    if ($quantity <= 0) {
+        return 'Critical';
+    } elseif ($quantity <= 10) {
+        return 'Low Stock';
+    } else {
+        return 'In Stock';
+    }
+}
 ?>

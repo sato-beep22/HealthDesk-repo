@@ -21,8 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $expiration_date = $_POST['expiration_date'];
 
         if (!empty($item_name) && !empty($category) && !empty($unit)) {
-            $stmt = $conn->prepare("INSERT INTO inventory (item_name, category, quantity, unit, expiration_date) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssiss", $item_name, $category, $quantity, $unit, $expiration_date);
+            $status = calculateInventoryStatus($quantity);
+            $stmt = $conn->prepare("INSERT INTO inventory (item_name, category, quantity, unit, expiration_date, status) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssisss", $item_name, $category, $quantity, $unit, $expiration_date, $status);
 
             if ($stmt->execute()) {
                 $message = "Inventory item added successfully!";
@@ -58,8 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($current_quantity >= $quantity_dispensed) {
                     // Update inventory
                     $new_quantity = $current_quantity - $quantity_dispensed;
-                    $update_stmt = $conn->prepare("UPDATE inventory SET quantity = ? WHERE item_id = ?");
-                    $update_stmt->bind_param("ii", $new_quantity, $item_id);
+                    $status = calculateInventoryStatus($new_quantity);
+                    $update_stmt = $conn->prepare("UPDATE inventory SET quantity = ?, status = ? WHERE item_id = ?");
+                    $update_stmt->bind_param("isi", $new_quantity, $status, $item_id);
                     $update_stmt->execute();
                     $update_stmt->close();
 

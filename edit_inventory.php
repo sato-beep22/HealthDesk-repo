@@ -36,8 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $expiration_date = $_POST['expiration_date'];
 
     if (!empty($item_name) && !empty($category) && !empty($unit)) {
-        $stmt = $conn->prepare("UPDATE inventory SET item_name = ?, category = ?, quantity = ?, unit = ?, expiration_date = ? WHERE item_id = ?");
-        $stmt->bind_param("ssissi", $item_name, $category, $quantity, $unit, $expiration_date, $item_id);
+        $status = calculateInventoryStatus($quantity);
+        $stmt = $conn->prepare("UPDATE inventory SET item_name = ?, category = ?, quantity = ?, unit = ?, expiration_date = ?, status = ? WHERE item_id = ?");
+        $stmt->bind_param("ssisssi", $item_name, $category, $quantity, $unit, $expiration_date, $status, $item_id);
 
         if ($stmt->execute()) {
             $message = "Inventory item updated successfully!";
