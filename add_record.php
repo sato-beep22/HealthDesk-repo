@@ -10,7 +10,7 @@ $message = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate and sanitize input
+  
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);
     $middle_name = trim($_POST['middle_name']);
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_guardian = trim($_POST['parent_guardian']);
     $contact_no = trim($_POST['contact_no']);
 
-    // Physical Examination
+    
     $height = (float)$_POST['height'];
     $weight = (float)$_POST['weight'];
     $bmi = (float)$_POST['bmi'];
@@ -40,14 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $genital = trim($_POST['genital']);
     $skin = trim($_POST['skin']);
 
-    // Past Medical History
+   
     $chronic_illness = trim($_POST['chronic_illness']);
     $allergies = trim($_POST['allergies']);
     $operations = trim($_POST['operations']);
     $accidents_injuries = trim($_POST['accidents_injuries']);
     $medicines_regular = trim($_POST['medicines_regular']);
 
-    // Basic validation
+   
     if (empty($first_name) || empty($last_name) || empty($age) || empty($sex)) {
         $errors[] = "Please fill in all required fields.";
     }
@@ -114,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="container">
         <h2>Add Patient Record</h2>
 
-        <?php if ($message): ?>
-            <div class="message <?php echo strpos($message, 'Error') === 0 ? 'error' : 'success'; ?>">
+        <?php if ($message && strpos($message, 'Error') === 0): ?>
+            <div class="message error">
                 <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">Submit Patient Record</button>
+            <button type="submit" class="submit-btn" onclick="return confirm('Are you sure you want to add this patient?')">Submit Patient Record</button>
         </form>
     </main>
     <?php include 'includes/footer.php'; ?>

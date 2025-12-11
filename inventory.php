@@ -8,6 +8,10 @@ if (!isLoggedIn() || getUserRole() !== 'Admin') {
 
 $message = '';
 
+if (isset($_GET['message'])) {
+    $message = $_GET['message'];
+}
+
 $conn = getDBConnection();
 
 // Handle form submissions
@@ -33,53 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         } else {
             $message = "Please fill in all required fields.";
-        }
-    } elseif (isset($_POST['administer_item'])) {
-        // Administer item to patient
-        $patient_id = (int)$_POST['patient_id'];
-        $item_id = (int)$_POST['item_id'];
-        $quantity_dispensed = (int)$_POST['quantity_dispensed'];
-
-        if ($patient_id > 0 && $item_id > 0 && $quantity_dispensed > 0) {
-            // Check if patient exists
-            $patient_check = $conn->prepare("SELECT patient_id FROM patients WHERE patient_id = ?");
-            $patient_check->bind_param("i", $patient_id);
-            $patient_check->execute();
-            $patient_exists = $patient_check->get_result()->num_rows > 0;
-            $patient_check->close();
-
-            if ($patient_exists) {
-                // Check if item has enough quantity
-                $item_check = $conn->prepare("SELECT quantity FROM inventory WHERE item_id = ?");
-                $item_check->bind_param("i", $item_id);
-                $item_check->execute();
-                $current_quantity = $item_check->get_result()->fetch_assoc()['quantity'];
-                $item_check->close();
-
-                if ($current_quantity >= $quantity_dispensed) {
-                    // Update inventory
-                    $new_quantity = $current_quantity - $quantity_dispensed;
-                    $status = calculateInventoryStatus($new_quantity);
-                    $update_stmt = $conn->prepare("UPDATE inventory SET quantity = ?, status = ? WHERE item_id = ?");
-                    $update_stmt->bind_param("isi", $new_quantity, $status, $item_id);
-                    $update_stmt->execute();
-                    $update_stmt->close();
-
-                    // Log dispensation
-                    $log_stmt = $conn->prepare("INSERT INTO dispensation_log (patient_id, item_id, quantity_disbursed) VALUES (?, ?, ?)");
-                    $log_stmt->bind_param("iii", $patient_id, $item_id, $quantity_dispensed);
-                    $log_stmt->execute();
-                    $log_stmt->close();
-
-                    $message = "Item administered successfully!";
-                } else {
-                    $message = "Insufficient quantity in inventory.";
-                }
-            } else {
-                $message = "Patient not found.";
-            }
-        } else {
-            $message = "Please fill in all fields correctly.";
         }
     }
 }
@@ -121,8 +78,19 @@ $stmt->execute();
 $inventory_items = $stmt->get_result();
 $stmt->close();
 
-// Get patients for administration modal
-$patients = $conn->query("SELECT patient_id, first_name, last_name FROM patients ORDER BY last_name, first_name");
+// Get dispensation history
+$dispensation_query = "SELECT dl.log_id, dl.quantity_disbursed, dl.date,
+                             p.last_name, p.first_name, p.middle_name,
+                             i.item_name
+                      FROM dispensation_log dl
+                      JOIN patients p ON dl.patient_id = p.patient_id
+                      JOIN inventory i ON dl.item_id = i.item_id
+                      ORDER BY dl.date DESC";
+
+$dispensation_stmt = $conn->prepare($dispensation_query);
+$dispensation_stmt->execute();
+$dispensation_history = $dispensation_stmt->get_result();
+$dispensation_stmt->close();
 
 $conn->close();
 ?>
@@ -266,8 +234,8 @@ $conn->close();
                                 <td><?php echo $item['expiration_date'] ? date('M j, Y', strtotime($item['expiration_date'])) : 'N/A'; ?></td>
                                 <td class="status-<?php echo strtolower(str_replace(' ', '-', $item['status'])); ?>"><?php echo $item['status']; ?></td>
                                 <td>
-                                    <button onclick="openAdministerModal(<?php echo $item['item_id']; ?>, '<?php echo htmlspecialchars($item['item_name']); ?>')" class="action-btn">Administer</button>
                                     <a href="edit_inventory.php?id=<?php echo $item['item_id']; ?>" class="action-btn">Edit</a>
+                                    <a href="dispense_inventory.php?id=<?php echo $item['item_id']; ?>" class="action-btn">Dispense</a>
                                     <a href="delete_inventory.php?id=<?php echo $item['item_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
                                 </td>
                             </tr>
@@ -281,53 +249,46 @@ $conn->close();
             </table>
         </div>
 
-        <!-- Administer Item Modal -->
-        <div id="administerModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeAdministerModal()">&times;</span>
-                <h3>Administer Item to Patient</h3>
-                <form method="POST" action="">
-                    <input type="hidden" id="administer_item_id" name="item_id">
-                    <div class="form-group">
-                        <label for="patient_id">Select Patient</label>
-                        <select id="patient_id" name="patient_id" required>
-                            <option value="">Choose a patient</option>
-                            <?php while ($patient = $patients->fetch_assoc()): ?>
-                                <option value="<?php echo $patient['patient_id']; ?>">
-                                    <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?> (ID: <?php echo $patient['patient_id']; ?>)
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity_dispensed">Quantity to Dispense</label>
-                        <input type="number" id="quantity_dispensed" name="quantity_dispensed" min="1" required>
-                    </div>
-                    <button type="submit" name="administer_item" class="submit-btn">Administer Item</button>
-                </form>
-            </div>
+        <!-- Dispensation History -->
+        <div class="table-container">
+            <h3>Dispensation History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Log ID</th>
+                        <th>Patient Name</th>
+                        <th>Item Name</th>
+                        <th>Quantity Dispensed</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($dispensation_history->num_rows > 0): ?>
+                        <?php while ($log = $dispensation_history->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo $log['log_id']; ?></td>
+                                <td><?php echo htmlspecialchars($log['last_name'] . ', ' . $log['first_name'] . ' ' . $log['middle_name']); ?></td>
+                                <td><?php echo htmlspecialchars($log['item_name']); ?></td>
+                                <td><?php echo $log['quantity_disbursed']; ?></td>
+                                <td><?php echo date('M j, Y H:i', strtotime($log['date'])); ?></td>
+                                <td>
+                                    <a href="delete_dispensation.php?id=<?php echo $log['log_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this dispensation log?')">Delete</a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6">No dispensation history found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
+
     </main>
 
-    <script>
-        function openAdministerModal(itemId, itemName) {
-            document.getElementById('administer_item_id').value = itemId;
-            document.getElementById('administerModal').style.display = 'block';
-            // You could set the modal title to include the item name
-        }
 
-        function closeAdministerModal() {
-            document.getElementById('administerModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            var modal = document.getElementById('administerModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
     <?php include 'includes/footer.php'; ?>
 </body>
 </html>

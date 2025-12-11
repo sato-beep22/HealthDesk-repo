@@ -41,21 +41,23 @@ $dispensation_history = $conn->query("
 
 $conn->close();
 
+$patient_name = str_replace(' ', '_', trim($patient['first_name'] . ' ' . $patient['middle_name'] . ' ' . $patient['last_name']));
+
 // Generate report content based on type
 $report_content = '';
 $filename = '';
 
 switch ($report_type) {
     case 'full_record':
-        $filename = 'Full_Patient_Record_' . $patient['patient_id'] . '.txt';
+        $filename = 'Full_Patient_Record_' . $patient_name . '.txt';
         $report_content = generateFullRecord($patient, $reports, $dispensation_history);
         break;
     case 'health_summary':
-        $filename = 'Health_Summary_' . $patient['patient_id'] . '.txt';
+        $filename = 'Health_Summary_' . $patient_name . '.txt';
         $report_content = generateHealthSummary($patient);
         break;
     case 'medical_history':
-        $filename = 'Medical_History_' . $patient['patient_id'] . '.txt';
+        $filename = 'Medical_History_' . $patient_name . '.txt';
         $report_content = generateMedicalHistory($patient, $reports);
         break;
     default:

@@ -10,10 +10,10 @@ $message = '';
 
 $conn = getDBConnection();
 
-// Get patients for dropdown
+
 $patients = $conn->query("SELECT patient_id, first_name, last_name FROM patients ORDER BY last_name, first_name");
 
-// Get recent reports
+
 $recent_reports = $conn->query("
     SELECT r.report_id, r.date, p.first_name, p.last_name, LEFT(r.report_content, 100) as summary
     FROM reports r
@@ -117,7 +117,8 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($report['first_name'] . ' ' . $report['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($report['summary']); ?>...</td>
                                 <td>
-                                    <a href="view_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn">View Full Report</a>
+                                    <a href="view_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn">View  </a><br>
+                                    <a href="delete_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this report?')">Delete</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

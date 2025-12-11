@@ -21,6 +21,16 @@
     box-sizing: border-box;
 }
 
+button {
+    outline: none !important;
+    border: none;
+}
+
+button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 body {
     font-family: "Montserrat", sans-serif;
     background-color: var(--off-white);
@@ -407,6 +417,33 @@ tr:hover {
     border-radius: 4px;
     font-size: 0.9rem;
     margin-right: 0.5rem;
+    outline: none;
+    border: none;
+}
+
+.action-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+button.action-btn {
+    outline: none;
+    border: none;
+}
+
+button.action-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.administer-btn {
+    outline: none !important;
+    border: none !important;
+}
+
+.administer-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .delete-btn {

@@ -88,8 +88,8 @@ $conn->close();
     <main class="container">
         <h2>Add Health Report for <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?></h2>
 
-        <?php if ($message): ?>
-            <div class="message <?php echo strpos($message, 'Error') === 0 ? 'error' : 'success'; ?>">
+        <?php if ($message && strpos($message, 'Error') === 0): ?>
+            <div class="message error">
                 <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
@@ -106,5 +106,10 @@ $conn->close();
         </div>
     </main>
     <?php include 'includes/footer.php'; ?>
+    <script>
+        <?php if ($message && strpos($message, 'successfully') !== false): ?>
+            alert("<?php echo htmlspecialchars($message); ?>");
+        <?php endif; ?>
+    </script>
 </body>
 </html>

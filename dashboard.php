@@ -15,15 +15,33 @@ $stmt->bind_param("s", $current_date);
 $stmt->execute();
 $today_patients = $stmt->get_result()->fetch_assoc()['today_patients'];
 
-// Get recently added patients (last 5)
-$recent_patients = $conn->query("SELECT patient_id, first_name, last_name, age FROM patients ORDER BY created_at DESC LIMIT 5");
+// Pagination for patients
+$patients_page = isset($_GET['patients_page']) ? (int)$_GET['patients_page'] : 1;
+$patients_per_page = 5;
+$patients_offset = ($patients_page - 1) * $patients_per_page;
 
-// Get recent reports (last 3)
+// Get total patients count for pagination
+$total_patients_count = $conn->query("SELECT COUNT(*) as count FROM patients")->fetch_assoc()['count'];
+$total_patients_pages = ceil($total_patients_count / $patients_per_page);
+
+// Get recently added patients with pagination
+$recent_patients = $conn->query("SELECT patient_id, first_name, last_name, age FROM patients ORDER BY created_at DESC LIMIT $patients_offset, $patients_per_page");
+
+// Pagination for reports
+$reports_page = isset($_GET['reports_page']) ? (int)$_GET['reports_page'] : 1;
+$reports_per_page = 5;
+$reports_offset = ($reports_page - 1) * $reports_per_page;
+
+// Get total reports count for pagination
+$total_reports_count = $conn->query("SELECT COUNT(*) as count FROM reports")->fetch_assoc()['count'];
+$total_reports_pages = ceil($total_reports_count / $reports_per_page);
+
+// Get recent reports with pagination
 $recent_reports = $conn->query("
     SELECT r.report_id, r.date, p.first_name, p.last_name, LEFT(r.report_content, 100) as summary
     FROM reports r
     JOIN patients p ON r.patient_id = p.patient_id
-    ORDER BY r.date DESC LIMIT 3
+    ORDER BY r.date DESC LIMIT $reports_offset, $reports_per_page
 ");
 
 // Get inventory summary
@@ -50,6 +68,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HealthDesk - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="pagination_styles.css">
 </head>
 <body>
     <header class="header">
@@ -85,9 +104,9 @@ $conn->close();
 
         <div class="search-section">
             <h3>Search Patient</h3>
-            <form class="search-form" method="GET" action="patient_record.php">
-                <input type="text" name="student_id" placeholder="Enter Patient ID" required>
-                <button type="submit">Search</button>
+            <form class="form-group" method="GET" action="patient_record.php">
+                <input type="text" id="search" name="student_id" placeholder="Enter Patient ID" required>
+                <button class="submit-btn" type="submit">Search</button>
             </form>
         </div>
 
@@ -124,6 +143,23 @@ $conn->close();
             <?php else: ?>
                 <p>No patients added yet.</p>
             <?php endif; ?>
+
+            <!-- Pagination for patients -->
+            <?php if ($total_patients_pages > 1): ?>
+                <div class="pagination">
+                    <?php if ($patients_page > 1): ?>
+                        <a href="?patients_page=<?php echo $patients_page - 1; ?><?php echo isset($_GET['reports_page']) ? '&reports_page=' . $_GET['reports_page'] : ''; ?>">Previous</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_patients_pages; $i++): ?>
+                        <a href="?patients_page=<?php echo $i; ?><?php echo isset($_GET['reports_page']) ? '&reports_page=' . $_GET['reports_page'] : ''; ?>" class="<?php echo $i === $patients_page ? 'active' : ''; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
+
+                    <?php if ($patients_page < $total_patients_pages): ?>
+                        <a href="?patients_page=<?php echo $patients_page + 1; ?><?php echo isset($_GET['reports_page']) ? '&reports_page=' . $_GET['reports_page'] : ''; ?>">Next</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="recent-reports">
@@ -140,6 +176,23 @@ $conn->close();
                 <?php endwhile; ?>
             <?php else: ?>
                 <p>No reports available.</p>
+            <?php endif; ?>
+
+            <!-- Pagination for reports -->
+            <?php if ($total_reports_pages > 1): ?>
+                <div class="pagination">
+                    <?php if ($reports_page > 1): ?>
+                        <a href="?reports_page=<?php echo $reports_page - 1; ?><?php echo isset($_GET['patients_page']) ? '&patients_page=' . $_GET['patients_page'] : ''; ?>">Previous</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_reports_pages; $i++): ?>
+                        <a href="?reports_page=<?php echo $i; ?><?php echo isset($_GET['patients_page']) ? '&patients_page=' . $_GET['patients_page'] : ''; ?>" class="<?php echo $i === $reports_page ? 'active' : ''; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
+
+                    <?php if ($reports_page < $total_reports_pages): ?>
+                        <a href="?reports_page=<?php echo $reports_page + 1; ?><?php echo isset($_GET['patients_page']) ? '&patients_page=' . $_GET['patients_page'] : ''; ?>">Next</a>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
         </div>
 
