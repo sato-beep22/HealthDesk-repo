@@ -57,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="login-body">
     <div class="login-container">
         <div style="text-align: center;"> 
-        <img 
-        src="isu_logo.png" 
-        alt="ISU Logo" 
-        style="width: 150px; height: auto; display: block; margin: 0 auto;"
+        <img
+        src="isu_logo.png"
+        alt="ISU Logo"
+        style="width: 150px; height: 150px; display: block; margin: 0 auto; border-radius: 50%; object-fit: cover;"
         >
         </div>
         <div class="login-header">

@@ -93,7 +93,7 @@ $conn->close();
         style="width: auto; height: 60px; display: flex; margin-left: 15px;"
         >
         <img  src="first_aider.jpeg" alt="fa Logo" 
-        style="width: auto; height: 60px; display: flex; margin-left: 15px;"
+        style="width: auto; height: 60px; display: flex; margin-left: 15px; border-radius: 60px;"
         >
         </h1>
         <div class="user-info">
@@ -160,12 +160,15 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($patient['contact_no']); ?></td>
                                 <td><?php echo date('M j, Y', strtotime($patient['created_at'])); ?></td>
                                 <td>
-                                    <a href="patient_record.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn">View Record</a>
-                                    <?php if (getUserRole() === 'Admin'): ?>
-                                        <a href="add_report.php?patient_id=<?php echo $patient['patient_id']; ?>" class="action-btn">Add Report</a>
-                                        <button type="button" class="action-btn administer-btn" onclick="openAdministerModal(<?php echo $patient['patient_id']; ?>, '<?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>')">Administer</button>
-                                        <a href="delete_patient.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this patient?')">Delete</a>
-                                    <?php endif; ?>
+                                    <div class="action-buttons">
+                                        <a href="patient_record.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn">View Record</a>
+                                        <?php if (getUserRole() === 'Admin'): ?>
+                                            <a href="edit_patient.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn">Edit</a>
+                                            <a href="add_report.php?patient_id=<?php echo $patient['patient_id']; ?>" class="action-btn">Add Report</a>
+                                            <button type="button" class="action-btn" onclick="openAdministerModal(<?php echo $patient['patient_id']; ?>, '<?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>')">Administer</button>
+                                            <a href="delete_patient.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this patient?')">Delete</a>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

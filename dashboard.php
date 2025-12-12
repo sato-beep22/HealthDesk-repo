@@ -72,13 +72,15 @@ $conn->close();
 </head>
 <body>
     <header class="header">
-        <h1>HealthDesk 
-        <img  src="isu_logo.png" alt="ISU Logo" 
+        <h1>HealthDesk <img
+        src="isu_logo.png"
+        alt="ISU Logo"
         style="width: auto; height: 60px; display: flex; margin-left: 15px;"
         >
-        <img  src="first_aider.jpeg" alt="fa Logo" 
-        style="width: auto; height: 60px; display: flex; margin-left: 15px;"
-        ></h1>
+        <img  src="first_aider.jpeg" alt="fa Logo"
+        style="width: auto; height: 60px; display: flex; margin-left: 15px; border-radius: 60px;"
+        >
+        </h1>
         <div class="user-info">
             <span>Welcome <?php echo htmlspecialchars($_SESSION['name']); ?>!</span>
             <a href="logout.php" class="logout-btn">Log Out</a>

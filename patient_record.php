@@ -57,7 +57,7 @@ $conn->close();
         style="width: auto; height: 60px; display: flex; margin-left: 15px;"
         >
         <img  src="first_aider.jpeg" alt="fa Logo" 
-        style="width: auto; height: 60px; display: flex; margin-left: 15px;"
+        style="width: auto; height: 60px; display: flex; margin-left: 15px; border-radius: 60px;"
         >
         </h1>
         <div class="user-info">
@@ -83,6 +83,11 @@ $conn->close();
 
     <main class="container">
         <h2>Patient Record - <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?></h2>
+        <?php if (getUserRole() === 'Admin'): ?>
+            <div class="record-actions">
+                <a href="edit_patient.php?id=<?php echo $patient['patient_id']; ?>" class="action-btn">Edit Patient</a>
+            </div>
+        <?php endif; ?>
 
         <div class="patient-details">
             <div class="form-section">

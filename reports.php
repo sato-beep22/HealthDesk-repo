@@ -40,7 +40,7 @@ $conn->close();
         style="width: auto; height: 60px; display: flex; margin-left: 15px;"
         >
         <img  src="first_aider.jpeg" alt="fa Logo" 
-        style="width: auto; height: 60px; display: flex; margin-left: 15px;"
+        style="width: auto; height: 60px; display: flex; margin-left: 15px; border-radius: 60px;"
         >
         </h1>
         <div class="user-info">
@@ -117,8 +117,10 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($report['first_name'] . ' ' . $report['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($report['summary']); ?>...</td>
                                 <td>
-                                    <a href="view_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn">View  </a><br>
-                                    <a href="delete_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this report?')">Delete</a>
+                                    <div class="action-buttons">
+                                        <a href="view_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn">View</a>
+                                        <a href="delete_report.php?id=<?php echo $report['report_id']; ?>" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this report?')">Delete</a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

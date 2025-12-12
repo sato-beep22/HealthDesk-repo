@@ -62,7 +62,7 @@ $conn->close();
         style="width: auto; height: 60px; display: flex; margin-left: 15px;"
         >
         <img  src="first_aider.jpeg" alt="fa Logo" 
-        style="width: auto; height: 60px; display: flex; margin-left: 15px;"
+        style="width: auto; height: 60px; display: flex; margin-left: 15px; border-radius: 60px;"
         >
         </h1>
         <div class="user-info">
