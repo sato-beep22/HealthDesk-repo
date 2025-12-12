@@ -12,6 +12,7 @@
     --white: #FFFFFF;
     --black: #000000;
     --error-red: #FF0000;
+    --success-green: #28a745;
 }
 
 /* Global Styles */
@@ -295,6 +296,12 @@ body {
 
 .error-message {
     color: var(--error-red);
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.success-message {
+    color: var(--success-green);
     text-align: center;
     margin-top: 1rem;
 }

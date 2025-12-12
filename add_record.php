@@ -52,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Please fill in all required fields.";
     }
 
+    if (!isset($_POST['data_privacy_agreement'])) {
+        $errors[] = "You must agree to the Data Privacy Act.";
+    }
+
     if (empty($errors)) {
         $conn = getDBConnection();
 
@@ -113,6 +117,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="container">
         <h2>Add Patient Record</h2>
+
+        <?php if (!empty($errors)): ?>
+            <div class="message error">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?php echo htmlspecialchars($error); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
 
         <?php if ($message && strpos($message, 'Error') === 0): ?>
             <div class="message error">
@@ -199,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-group">
                         <label for="bmi">BMI</label>
-                        <input type="number" step="0.1" id="bmi" name="bmi">
+                        <input type="number" step="0.1" id="bmi" name="bmi" readonly>
                     </div>
                     <div class="form-group">
                         <label for="bp">Blood Pressure</label>
@@ -274,9 +288,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
+            <div class="form-group">
+                <label for="data_privacy_agreement">
+                    <input type="checkbox" id="data_privacy_agreement" name="data_privacy_agreement" required>
+                    I agree to the Data Privacy Act and consent to the collection and processing of my personal data.
+                </label>
+            </div>
             <button type="submit" class="submit-btn" onclick="return confirm('Are you sure you want to add this patient?')">Submit Patient Record</button>
         </form>
     </main>
     <?php include 'includes/footer.php'; ?>
+
+    <script>
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const bmiField = document.getElementById('bmi');
+
+            if (height > 0 && weight > 0) {
+                const heightInMeters = height / 100;
+                const bmi = weight / (heightInMeters * heightInMeters);
+                bmiField.value = bmi.toFixed(1);
+            } else {
+                bmiField.value = '';
+            }
+        }
+
+        document.getElementById('height').addEventListener('input', calculateBMI);
+        document.getElementById('weight').addEventListener('input', calculateBMI);
+    </script>
 </body>
 </html>

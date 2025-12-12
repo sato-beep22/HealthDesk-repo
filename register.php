@@ -11,7 +11,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     if (!empty($admin_staff_id) && !empty($name) && !empty($email) && !empty($password) && !empty($confirm_password)) {
-        if ($password !== $confirm_password) {
+        // Validate password strength
+        if (strlen($password) < 8) {
+            $message = "Password must be at least 8 characters long.";
+        } elseif (!preg_match('/[A-Z]/', $password)) {
+            $message = "Password must contain at least one uppercase letter.";
+        } elseif (!preg_match('/[a-z]/', $password)) {
+            $message = "Password must contain at least one lowercase letter.";
+        } elseif (!preg_match('/[0-9]/', $password)) {
+            $message = "Password must contain at least one number.";
+        } elseif (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            $message = "Password must contain at least one special character.";
+        } elseif ($password !== $confirm_password) {
             $message = "Passwords do not match.";
         } else {
             $conn = getDBConnection();
@@ -34,11 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($stmt->execute()) {
                     $message = "Registration successful! You can now log in.";
+                    $message_type = "success";
                     // Optionally redirect to login.php
                     // header("Location: login.php");
                     // exit();
                 } else {
                     $message = "Registration failed. Please try again.";
+                    $message_type = "error";
                 }
             }
 
@@ -86,14 +99,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
+                <small style="color: #666;">Strong Password (8 Characters long, combination of special characters and numbers).</small>
             </div>
             <div class="form-group">
                 <label for="confirm_password">Confirm Password</label>
                 <input type="password" id="confirm_password" name="confirm_password" required>
             </div>
             <?php if ($message): ?>
-                <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
+                <div class="<?php echo isset($message_type) && $message_type === 'success' ? 'success-message' : 'error-message'; ?>"><?php echo htmlspecialchars($message); ?></div>
             <?php endif; ?>
+
             <button type="submit" class="login-btn">Register</button>
         </form>
         <div class="forgot-password">
