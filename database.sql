@@ -1,9 +1,9 @@
--- HealthDesk Database Schema
+
 
 CREATE DATABASE IF NOT EXISTS healthdesk;
 USE healthdesk;
 
--- Users table
+
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     admin_staff_id VARCHAR(50) UNIQUE NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Patients table
+
 CREATE TABLE patients (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
     last_name VARCHAR(50) NOT NULL,
@@ -29,22 +29,22 @@ CREATE TABLE patients (
     civil_status ENUM('Single', 'Married', 'Divorced', 'Widowed'),
     parent_guardian VARCHAR(100),
     contact_no VARCHAR(20),
-    -- Physical Examination
-    height DECIMAL(5,2), -- in cm
-    weight DECIMAL(5,2), -- in kg
+ 
+    height DECIMAL(5,2), 
+    weight DECIMAL(5,2), 
     bmi DECIMAL(4,2),
-    bp VARCHAR(20), -- Blood Pressure
-    temp DECIMAL(4,1), -- Temperature
-    pr INT, -- Pulse Rate
-    rr INT, -- Respiratory Rate
-    heent TEXT, -- Head, Eyes, Ears, Nose, Throat
+    bp VARCHAR(20), 
+    temp DECIMAL(4,1), 
+    pr INT, 
+    rr INT, 
+    heent TEXT, 
     chest TEXT,
     heart TEXT,
     lungs TEXT,
     abdomen TEXT,
     genital TEXT,
     skin TEXT,
-    -- Past Medical History
+    
     chronic_illness TEXT,
     allergies TEXT,
     operations TEXT,
@@ -54,7 +54,7 @@ CREATE TABLE patients (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Inventory table
+
 CREATE TABLE inventory (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
     item_name VARCHAR(100) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE inventory (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Dispensation Log table
+
 CREATE TABLE dispensation_log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE dispensation_log (
     FOREIGN KEY (item_id) REFERENCES inventory(item_id)
 );
 
--- Reports table
+
 CREATE TABLE reports (
     report_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE reports (
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
 );
 
--- Insert sample data
+
 INSERT INTO users (admin_staff_id, password_hash, role, name, email) VALUES
 ('admin001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'Jehu Admin', 'admin@healthdesk.com'),
 ('staff001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Staff', 'Jane Staff', 'staff@healthdesk.com');

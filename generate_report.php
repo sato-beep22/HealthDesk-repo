@@ -16,7 +16,7 @@ if ($patient_id <= 0 || empty($report_type)) {
 
 $conn = getDBConnection();
 
-// Get patient details
+
 $stmt = $conn->prepare("SELECT * FROM patients WHERE patient_id = ?");
 $stmt->bind_param("i", $patient_id);
 $stmt->execute();
@@ -27,10 +27,10 @@ if (!$patient) {
     exit();
 }
 
-// Get patient's reports
+
 $reports = $conn->query("SELECT * FROM reports WHERE patient_id = $patient_id ORDER BY date DESC");
 
-// Get dispensation history
+
 $dispensation_history = $conn->query("
     SELECT dl.quantity_disbursed, dl.date, i.item_name, i.category
     FROM dispensation_log dl
@@ -43,7 +43,6 @@ $conn->close();
 
 $patient_name = str_replace(' ', '_', trim($patient['first_name'] . ' ' . $patient['middle_name'] . ' ' . $patient['last_name']));
 
-// Generate report content based on type
 $report_content = '';
 $filename = '';
 
@@ -65,7 +64,6 @@ switch ($report_type) {
         exit();
 }
 
-// Output the report as a downloadable file
 header('Content-Type: text/plain');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Content-Length: ' . strlen($report_content));

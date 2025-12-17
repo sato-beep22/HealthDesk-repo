@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get current user data
+
 $conn = getDBConnection();
 $stmt = $conn->prepare("SELECT name, email FROM users WHERE user_id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);

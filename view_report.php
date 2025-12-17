@@ -15,7 +15,7 @@ if ($report_id <= 0) {
 
 $conn = getDBConnection();
 
-// Get report details
+
 $stmt = $conn->prepare("
     SELECT r.*, p.first_name, p.last_name, p.patient_id
     FROM reports r

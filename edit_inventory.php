@@ -17,7 +17,7 @@ $message = '';
 
 $conn = getDBConnection();
 
-// Get item details
+
 $stmt = $conn->prepare("SELECT * FROM inventory WHERE item_id = ?");
 $stmt->bind_param("i", $item_id);
 $stmt->execute();

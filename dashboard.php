@@ -8,35 +8,35 @@ if (!isLoggedIn() || getUserRole() !== 'Admin') {
 
 $conn = getDBConnection();
 
-// Get current date and patient count for today
+
 $current_date = date('Y-m-d');
 $stmt = $conn->prepare("SELECT COUNT(*) as today_patients FROM patients WHERE DATE(created_at) = ?");
 $stmt->bind_param("s", $current_date);
 $stmt->execute();
 $today_patients = $stmt->get_result()->fetch_assoc()['today_patients'];
 
-// Pagination for patients
+
 $patients_page = isset($_GET['patients_page']) ? (int)$_GET['patients_page'] : 1;
 $patients_per_page = 5;
 $patients_offset = ($patients_page - 1) * $patients_per_page;
 
-// Get total patients count for pagination
+
 $total_patients_count = $conn->query("SELECT COUNT(*) as count FROM patients")->fetch_assoc()['count'];
 $total_patients_pages = ceil($total_patients_count / $patients_per_page);
 
-// Get recently added patients with pagination
+
 $recent_patients = $conn->query("SELECT patient_id, first_name, last_name, age FROM patients ORDER BY created_at DESC LIMIT $patients_offset, $patients_per_page");
 
-// Pagination for reports
+
 $reports_page = isset($_GET['reports_page']) ? (int)$_GET['reports_page'] : 1;
 $reports_per_page = 5;
 $reports_offset = ($reports_page - 1) * $reports_per_page;
 
-// Get total reports count for pagination
+
 $total_reports_count = $conn->query("SELECT COUNT(*) as count FROM reports")->fetch_assoc()['count'];
 $total_reports_pages = ceil($total_reports_count / $reports_per_page);
 
-// Get recent reports with pagination
+
 $recent_reports = $conn->query("
     SELECT r.report_id, r.date, p.first_name, p.last_name, LEFT(r.report_content, 100) as summary
     FROM reports r
@@ -44,7 +44,7 @@ $recent_reports = $conn->query("
     ORDER BY r.date DESC LIMIT $reports_offset, $reports_per_page
 ");
 
-// Get inventory summary
+
 $inventory_summary = $conn->query("
     SELECT category, COUNT(*) as total_items,
            SUM(CASE WHEN status = 'In Stock' THEN 1 ELSE 0 END) as in_stock,
@@ -53,7 +53,7 @@ $inventory_summary = $conn->query("
     GROUP BY category
 ");
 
-// Get total counts
+
 $total_patients = $conn->query("SELECT COUNT(*) FROM patients")->fetch_row()[0];
 $active_reports = $conn->query("SELECT COUNT(*) FROM reports")->fetch_row()[0];
 $total_inventory = $conn->query("SELECT COUNT(*) FROM inventory")->fetch_row()[0];

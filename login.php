@@ -7,21 +7,20 @@ if (isLoggedIn()) {
 
 $message = '';
 
-// Initialize login attempts if not set
+
 if (!isset($_SESSION['login_attempts'])) {
     $_SESSION['login_attempts'] = 0;
     $_SESSION['last_attempt_time'] = 0;
 }
 
-// Check if user is in cooldown period
+
 $current_time = time();
-$cooldown_time = 120; // 2 minutes in seconds
+$cooldown_time = 120; 
 if ($_SESSION['login_attempts'] >= 5) {
     if (($current_time - $_SESSION['last_attempt_time']) < $cooldown_time) {
         $remaining_time = $cooldown_time - ($current_time - $_SESSION['last_attempt_time']);
         $message = "Too many failed attempts. Please try again in " . ceil($remaining_time / 60) . " minutes.";
     } else {
-        // Reset attempts after cooldown
         $_SESSION['login_attempts'] = 0;
         $_SESSION['last_attempt_time'] = 0;
     }
@@ -43,7 +42,7 @@ if ($_SESSION['login_attempts'] >= 5) {
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['name'] = $user['name'];
 
-                // Reset login attempts on successful login
+                
                 $_SESSION['login_attempts'] = 0;
                 $_SESSION['last_attempt_time'] = 0;
 

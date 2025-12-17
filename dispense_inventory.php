@@ -12,7 +12,7 @@ $patients = [];
 
 $conn = getDBConnection();
 
-// Get item details
+
 if (isset($_GET['id'])) {
     $item_id = (int)$_GET['id'];
     $stmt = $conn->prepare("SELECT * FROM inventory WHERE item_id = ?");
@@ -29,7 +29,7 @@ if (isset($_GET['id'])) {
     $message = "No item specified.";
 }
 
-// Get patients for dropdown
+
 $stmt = $conn->prepare("SELECT patient_id, CONCAT(last_name, ', ', first_name, ' ', COALESCE(middle_name, '')) AS full_name FROM patients ORDER BY last_name");
 $stmt->execute();
 $patients_result = $stmt->get_result();
@@ -38,17 +38,17 @@ while ($patient = $patients_result->fetch_assoc()) {
 }
 $stmt->close();
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dispense_item'])) {
     $patient_id = (int)$_POST['patient_id'];
     $quantity = (int)$_POST['quantity'];
 
     if ($item && $quantity > 0 && $quantity <= $item['quantity']) {
-        // Insert into dispensation_log
+      
         $stmt = $conn->prepare("INSERT INTO dispensation_log (patient_id, item_id, quantity_disbursed) VALUES (?, ?, ?)");
         $stmt->bind_param("iii", $patient_id, $item_id, $quantity);
         if ($stmt->execute()) {
-            // Update inventory quantity
+            
             $new_quantity = $item['quantity'] - $quantity;
             $new_status = calculateInventoryStatus($new_quantity);
             $update_stmt = $conn->prepare("UPDATE inventory SET quantity = ?, status = ? WHERE item_id = ?");

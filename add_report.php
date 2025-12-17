@@ -15,7 +15,6 @@ if ($patient_id <= 0) {
 
 $conn = getDBConnection();
 
-// Get patient details
 $stmt = $conn->prepare("SELECT first_name, last_name FROM patients WHERE patient_id = ?");
 $stmt->bind_param("i", $patient_id);
 $stmt->execute();

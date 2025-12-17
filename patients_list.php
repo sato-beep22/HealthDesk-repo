@@ -10,7 +10,7 @@ $message = '';
 
 $conn = getDBConnection();
 
-// Handle administer item
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['administer_item'])) {
     $patient_id = (int)$_POST['patient_id'];
     $item_id = (int)$_POST['item_id'];
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['administer_item'])) {
     if ($quantity <= 0) {
         $message = "Quantity must be greater than 0.";
     } else {
-        // Check if item exists and has sufficient quantity
+
         $stmt = $conn->prepare("SELECT item_name, quantity FROM inventory WHERE item_id = ?");
         $stmt->bind_param("i", $item_id);
         $stmt->execute();
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['administer_item'])) {
         if ($result->num_rows > 0) {
             $item = $result->fetch_assoc();
             if ($item['quantity'] >= $quantity) {
-                // Update inventory quantity
+             
                 $new_quantity = $item['quantity'] - $quantity;
                 $status = calculateInventoryStatus($new_quantity);
                 $update_stmt = $conn->prepare("UPDATE inventory SET quantity = ?, status = ? WHERE item_id = ?");
@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['administer_item'])) {
                 $update_stmt->execute();
                 $update_stmt->close();
 
-                // Log dispensation
                 $log_stmt = $conn->prepare("INSERT INTO dispensation_log (patient_id, item_id, quantity_disbursed) VALUES (?, ?, ?)");
                 $log_stmt->bind_param("iii", $patient_id, $item_id, $quantity);
                 $log_stmt->execute();
@@ -52,26 +51,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['administer_item'])) {
     }
 }
 
-// Pagination
+
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
-// Search functionality
+
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $search_condition = '';
 if (!empty($search)) {
     $search_condition = "WHERE first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR CONCAT(first_name, ' ', last_name) LIKE '%$search%'";
 }
 
-// Get total patients count
+
 $total_patients = $conn->query("SELECT COUNT(*) as count FROM patients $search_condition")->fetch_assoc()['count'];
 $total_pages = ceil($total_patients / $per_page);
 
-// Get patients for current page
+
 $patients = $conn->query("SELECT patient_id, first_name, last_name, age, sex, contact_no, created_at FROM patients $search_condition ORDER BY created_at DESC LIMIT $offset, $per_page");
 
-// Get inventory items for administration modal
+
 $inventory_items = $conn->query("SELECT item_id, item_name FROM inventory ORDER BY item_name");
 
 $conn->close();
@@ -199,7 +198,7 @@ $conn->close();
         <?php endif; ?>
     </main>
 
-    <!-- Administer Modal -->
+  
     <div id="administerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAdministerModal()">&times;</span>
@@ -238,7 +237,7 @@ $conn->close();
             document.getElementById('administerModal').style.display = 'none';
         }
 
-        // Close modal when clicking outside
+        
         window.onclick = function(event) {
             var modal = document.getElementById('administerModal');
             if (event.target == modal) {

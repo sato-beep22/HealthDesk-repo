@@ -15,7 +15,7 @@ if ($item_id <= 0) {
 
 $conn = getDBConnection();
 
-// Get item details for confirmation
+
 $stmt = $conn->prepare("SELECT item_name FROM inventory WHERE item_id = ?");
 $stmt->bind_param("i", $item_id);
 $stmt->execute();
@@ -29,7 +29,7 @@ if (!$item) {
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
-    // Delete the item
+   
     $stmt = $conn->prepare("DELETE FROM inventory WHERE item_id = ?");
     $stmt->bind_param("i", $item_id);
 

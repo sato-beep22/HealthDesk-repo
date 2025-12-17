@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     if (!empty($admin_staff_id) && !empty($name) && !empty($email) && !empty($password) && !empty($confirm_password)) {
-        // Validate password strength
         if (strlen($password) < 8) {
             $message = "Password must be at least 8 characters long.";
         } elseif (!preg_match('/[A-Z]/', $password)) {
@@ -27,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $conn = getDBConnection();
 
-            // Check if admin_staff_id already exists
+           
             $stmt = $conn->prepare("SELECT user_id FROM users WHERE admin_staff_id = ?");
             $stmt->bind_param("s", $admin_staff_id);
             $stmt->execute();
@@ -36,19 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result->num_rows > 0) {
                 $message = "Admin/Staff ID already exists.";
             } else {
-                // Hash the password
+               
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-                // Insert new user
+              
                 $stmt = $conn->prepare("INSERT INTO users (admin_staff_id, password_hash, role, name, email) VALUES (?, ?, 'Staff', ?, ?)");
                 $stmt->bind_param("ssss", $admin_staff_id, $password_hash, $name, $email);
 
                 if ($stmt->execute()) {
                     $message = "Registration successful! You can now log in.";
                     $message_type = "success";
-                    // Optionally redirect to login.php
-                    // header("Location: login.php");
-                    // exit();
+                    
                 } else {
                     $message = "Registration failed. Please try again.";
                     $message_type = "error";

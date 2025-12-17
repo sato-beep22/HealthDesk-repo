@@ -15,7 +15,7 @@ if ($patient_id <= 0) {
 
 $conn = getDBConnection();
 
-// Get patient details
+
 $stmt = $conn->prepare("SELECT * FROM patients WHERE patient_id = ?");
 $stmt->bind_param("i", $patient_id);
 $stmt->execute();
@@ -26,10 +26,10 @@ if (!$patient) {
     exit();
 }
 
-// Get patient's reports
+
 $reports = $conn->query("SELECT * FROM reports WHERE patient_id = $patient_id ORDER BY date DESC");
 
-// Get dispensation history
+
 $dispensation_history = $conn->query("
     SELECT dl.quantity_disbursed, dl.date, i.item_name, i.category
     FROM dispensation_log dl
